@@ -1685,21 +1685,25 @@ function route(){
   renderTool(t);
 }
 buildNav();
-if(!window.PDFLib || !window.pdfjsLib || !window.JSZip){
-  const warn = document.createElement("div");
-  warn.className = "filewarn";
-  warn.style.cssText = "background:#fdecec;color:#a33333;border-bottom-color:#f0baba";
-  warn.innerHTML = "⚠ <b>ライブラリ (vendor フォルダ) が読み込めませんでした。</b>" +
-    "ZIP の中から index.html を直接開いていませんか? ZIP ファイルを右クリック →「すべて展開」で展開してから、" +
-    "展開後のフォルダ内の「サイトを起動.bat」(または index.html) を開いてください。";
-  document.body.insertBefore(warn, $("#app"));
-}
 if(location.protocol === "file:"){
   const warn = document.createElement("div");
   warn.className = "filewarn";
-  warn.innerHTML = "⚠ ファイルを直接開いているため、<b>動画編集・動画/音声の形式変換</b>は利用できません。" +
-    "すべての機能を使うには「サイトを起動.bat」から起動するか、Web 公開版の URL からアクセスしてください。";
+  warn.innerHTML = "⚠ ファイルを直接開いているため、<b>PDF・動画・音声のほとんどの機能</b>が利用できません。" +
+    "フォルダ内の「サイトを起動.bat」から起動してください。";
   document.body.insertBefore(warn, $("#app"));
+} else {
+  /* pdf.js は type="module" で読み込むため、この時点ではまだ準備できていない。
+     ページの読み込みがすべて終わった (load) 後に確認する */
+  window.addEventListener("load", () => {
+    if(window.PDFLib && window.pdfjsLib && window.JSZip) return;
+    const warn = document.createElement("div");
+    warn.className = "filewarn";
+    warn.style.cssText = "background:#fdecec;color:#a33333;border-bottom-color:#f0baba";
+    warn.innerHTML = "⚠ <b>ライブラリ (vendor フォルダ) が読み込めませんでした。</b>" +
+      "ZIP の中から開いていませんか? ZIP ファイルを右クリック →「すべて展開」で展開してから、" +
+      "展開後のフォルダ内の「サイトを起動.bat」を開いてください。";
+    document.body.insertBefore(warn, $("#app"));
+  });
 }
 window.addEventListener("hashchange", route);
 route();
