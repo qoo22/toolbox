@@ -81,6 +81,25 @@ OSV への照合とは別の仕組みでも確認しました。
 
 直接使っている部品（`package.json` に書いた 10 個）への指摘は 0 件でした。
 
+**(3) GitHub Dependabot / GitHub Advisory Database**（GitHub 公式の脆弱性チェック）
+
+GitHub リポジトリ（qoo22/toolbox）で Dependency graph と Dependabot alerts をオンにし、`package.json` を読み込ませました。GitHub が認識した部品は次の 9 個です。それぞれについて、Dependabot が判定に使う GitHub Advisory Database に、版を指定して問い合わせました。
+
+| 部品 | 版 | 該当する勧告 |
+|---|---|---|
+| pdfjs-dist（pdf.js） | 6.4.299 | 0 件 |
+| pdf-lib | 1.17.1 | 0 件 |
+| html2canvas | 1.4.1 | 0 件 |
+| mammoth | 1.13.0 | 0 件 |
+| jszip | 3.10.1 | 0 件 |
+| pptxgenjs | 3.12.0 | 0 件 |
+| @ffmpeg/ffmpeg | 0.12.10 | 0 件 |
+| @ffmpeg/util | 0.12.1 | 0 件 |
+| @ffmpeg/core | 0.12.6 | 0 件 |
+
+- 照会が正しく機能しているかの確認として、対策前の版も問い合わせました。pdfjs-dist 3.11.174 → CVE-2024-4367、mammoth 1.8.0 → CVE-2025-11849 が返ってきました。
+- SheetJS は公式配布元の URL で指定しているため、GitHub の判定対象外です（GitHub は npm 版の部品しか判定しない）。SheetJS は上の OSV 照合と、勧告本文（0.19.3 以降は対象外）で確認しています。
+
 **html2pdf.js を廃止した理由**：最新版（0.14.0）でも、中に同梱されている jsPDF 4.0.0（9 件）と DOMPurify 3.3.1（19 件）に脆弱性が残っていました。そのため、Word/Excel→PDF の処理を「html2canvas で画像にする → pdf-lib で A4 ページにする」という形に書き直しました。部品が 1 つ減り、脆弱性のある jsPDF・DOMPurify はツールから完全になくなりました。
 
 ---
@@ -168,7 +187,7 @@ PDF の結合・圧縮などを実行しながら、通信をすべて記録し�
 
 **3 か月に 1 回**、管理者が次の作業をします（目安 30 分）。
 
-1. 「1. 部品の脆弱性の照合」の「対策後」の表にある部品と版を、https://osv.dev/ で検索する（npm を選び、部品名を入力）
+1. GitHub の「Security」→「Dependabot」に通知が来ていないか見る（新しい脆弱性が見つかると、GitHub が自動で知らせる）。あわせて、SheetJS は https://osv.dev/ と https://cdn.sheetjs.com/ で新しい勧告がないか確認する
 2. 該当する脆弱性がなければ、下の記録表に「問題なし」と書く
 3. 該当があれば
    - 影響する機能を確認する（表の「役割」の列）
@@ -178,5 +197,5 @@ PDF の結合・圧縮などを実行しながら、通信をすべて記録し�
 
 | 確認日 | 確認者 | 結果 |
 |---|---|---|
-| 2026-10-21 | 佐々木 | 問題なし（OSV・retire.js・npm audit で確認。本書のとおり対策済み） |
+| 2026-10-21 | 佐々木 | 問題なし（OSV・retire.js・npm audit・GitHub Advisory Database で確認。本書のとおり対策済み） |
 | 2027-01-（予定） | | |
